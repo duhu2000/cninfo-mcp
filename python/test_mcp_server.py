@@ -43,3 +43,37 @@ def test_invalid_download_does_not_create_directory(tmp_path):
     result = mcp_server.download_annual_reports_tool("", save_path=str(target))
     assert result["status"] == "error"
     assert not target.exists()
+
+
+def test_default_tool_inventory_is_read_only():
+    tools = mcp_server.mcp._tool_manager._tools
+    assert set(tools) == {"query_annual_reports_tool"}
+    annotations = tools["query_annual_reports_tool"].annotations
+    assert annotations.read_only_hint is True
+    assert annotations.destructive_hint is False
+    assert annotations.idempotent_hint is True
+    assert annotations.open_world_hint is True
+
+
+def test_download_path_must_stay_inside_explicit_root(monkeypatch, tmp_path):
+    monkeypatch.setenv("CNINFO_MCP_DOWNLOAD_ROOT", str(tmp_path / "allowed"))
+    download = Mock()
+    monkeypatch.setattr(mcp_server, "download_reports", download)
+    result = mcp_server.download_annual_reports_tool(
+        "000001", save_path="../outside"
+    )
+    assert result["status"] == "error"
+    assert "inside CNINFO_MCP_DOWNLOAD_ROOT" in result["error"]
+    download.assert_not_called()
+
+
+def test_download_uses_relative_path_under_explicit_root(monkeypatch, tmp_path):
+    root = tmp_path / "allowed"
+    monkeypatch.setenv("CNINFO_MCP_DOWNLOAD_ROOT", str(root))
+    download = Mock(return_value={"success": True, "status": "complete"})
+    monkeypatch.setattr(mcp_server, "download_reports", download)
+    result = mcp_server.download_annual_reports_tool(
+        "000001", save_path="reports"
+    )
+    assert result["status"] == "complete"
+    assert download.call_args.kwargs["save_path"] == str(root / "reports")

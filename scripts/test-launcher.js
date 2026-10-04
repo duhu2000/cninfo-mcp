@@ -5,10 +5,10 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { EventEmitter } = require('node:events');
 
-function load(file, { versions = {}, existing = true, missingDeps = false, platform = 'win32' } = {}) {
+function load(file, { versions = {}, existing = true, missingDeps = false, platform = 'win32', env = {} } = {}) {
   const calls = [];
   const fakeFs = { existsSync: () => existing, mkdirSync() {} };
-  const fakeProcess = { platform, env: {}, exit(code) { throw new Error(`exit ${code}`); } };
+  const fakeProcess = { platform, env, argv: ['node', file], execPath: 'node', exit(code) { throw new Error(`exit ${code}`); } };
   const context = {
     __dirname: path.join('C:/Users/Jane Doe & Co/repo', path.dirname(file)),
     process: fakeProcess,
@@ -37,12 +37,13 @@ function load(file, { versions = {}, existing = true, missingDeps = false, platf
   };
   vm.createContext(context);
   const source = fs.readFileSync(path.join(__dirname, '..', file), 'utf8')
+    .replace(/main\(\)\.catch\([\s\S]*?\);\s*$/, '')
     .replace(/main\(\)(?:\.catch\(console.error\))?;\s*$/, '');
   vm.runInContext(source, context);
   return { calls, context, fakeFs, run: code => vm.runInContext(code, context) };
 }
 
-for (const file of ['bin/cninfo-mcp.js', 'scripts/install-python-deps.js']) {
+for (const file of ['scripts/install-python-deps.js']) {
   test(`${file}: skips unsupported Python, accepts version on stderr`, async () => {
     const app = load(file, { versions: { python3: 'Python 3.9.6', python: 'Python 2.7.18', 'python3.12': 'Python 3.12.0' } });
     assert.equal(await app.run('findPython()'), 'python3.12');
@@ -84,3 +85,24 @@ for (const file of ['bin/cninfo-mcp.js', 'scripts/install-python-deps.js']) {
     }
   });
 }
+
+test('bin launcher selects a prepared Python without creating or installing anything', async () => {
+  const app = load('bin/cninfo-mcp.js', {
+    versions: { '/opt/cninfo/python': 'Python 3.12.0' },
+    env: { CNINFO_MCP_PYTHON: '/opt/cninfo/python' },
+  });
+  assert.equal(await app.run('findReadyPython()'), '/opt/cninfo/python');
+  assert(!app.calls.some(call => call.args.includes('venv')));
+  assert(!app.calls.some(call => call.args.includes('pip')));
+  assert(app.calls.some(call => call.args[0].endsWith('check_deps.py')));
+});
+
+test('bin launcher refuses an unprepared Python instead of installing dependencies', async () => {
+  const app = load('bin/cninfo-mcp.js', {
+    versions: { default: 'Python 3.12.0' },
+    missingDeps: true,
+  });
+  assert.equal(await app.run('findReadyPython()'), null);
+  assert(!app.calls.some(call => call.args.includes('venv')));
+  assert(!app.calls.some(call => call.args.includes('pip')));
+});
