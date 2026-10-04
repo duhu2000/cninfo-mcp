@@ -1,6 +1,10 @@
-# cninfo-mcp
+# DSH/QCC maintained cninfo-mcp
 
-[![npm version](https://img.shields.io/npm/v/@youhaozhao/cninfo-mcp)](https://www.npmjs.com/package/@youhaozhao/cninfo-mcp)
+[![npm version](https://img.shields.io/npm/v/@duhu2000/cninfo-mcp)](https://www.npmjs.com/package/@duhu2000/cninfo-mcp)
+
+本仓库是由 DSH/QCC 团队维护的安全加固社区分支，源自
+[`youhaozhao/cninfo-mcp`](https://github.com/youhaozhao/cninfo-mcp)。它不是深圳证券
+信息有限公司或巨潮资讯官方产品，也不暗示其背书。
 
 通过 MCP 协议查询和下载巨潮资讯网上市公司定期报告及招股书 PDF 的工具，适用于 Claude Desktop / Claude Code。
 
@@ -20,18 +24,29 @@
   "mcpServers": {
     "cninfo": {
       "command": "npx",
-      "args": ["-y", "@youhaozhao/cninfo-mcp"]
+      "args": ["-y", "@duhu2000/cninfo-mcp@1.4.2"]
     }
   }
 }
 ```
 
-重启 Claude Desktop 后即可使用。
+首次使用前需显式准备 Python 依赖（安装过程会在用户目录创建
+`.cninfo-mcp/venv` 并访问 Python 包索引）：
+
+```bash
+npx -y @duhu2000/cninfo-mcp@1.4.2 --setup
+```
+
+安装完成后重启 Claude Desktop 即可使用。普通 MCP 启动只复用已准备的
+Python 环境，不会创建虚拟环境或执行 `pip install`。也可通过
+`CNINFO_MCP_PYTHON` 指向已安装 `python/requirements.txt` 依赖的 Python 3.10+
+解释器。
 
 ## 可用工具
 
 - **`query_annual_reports_tool`** — 查询报告列表，参数：股票代码（必填）、年份（可选）、报告类型（可选，默认 `annual`）
-- **`download_annual_reports_tool`** — 下载报告 PDF，参数：股票代码（必填）、年份（可选）、保存路径（可选）、报告类型（可选，默认 `annual`）
+- **`download_annual_reports_tool`** — 下载报告 PDF；默认不注册。仅在启动前显式设置
+  `CNINFO_MCP_DOWNLOAD_ROOT` 后启用，`save_path` 只能是该目录内的相对路径。
 
 支持的 `report_type`：
 
@@ -56,7 +71,18 @@
 ## 系统要求
 
 - Node.js 18+
-- Python 3.10+（Python 依赖会自动安装；需要 MCP Python SDK v2，旧环境会在下次启动时自动升级）
+- Python 3.10+（依赖只在用户显式执行 `--setup` 时安装；需要 MCP Python SDK v2）
+
+## 安全边界
+
+- 公告检索、页面来源和附件下载均只使用 `https://www.cninfo.com.cn` 或
+  `https://static.cninfo.com.cn`。
+- 默认仅暴露只读查询工具，并声明 MCP `readOnlyHint`、`destructiveHint`、
+  `idempotentHint` 与 `openWorldHint`。
+- 下载能力必须通过 `CNINFO_MCP_DOWNLOAD_ROOT` 显式启用；工具拒绝绝对路径与
+  `..` 越界路径，并声明为可能覆盖同名文件的非只读工具。
+- 本项目是独立社区项目，并非深圳证券信息有限公司或巨潮资讯官方产品；使用时
+  仍应遵守巨潮资讯网站规则与数据使用边界。
 
 ## 数据来源
 

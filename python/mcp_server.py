@@ -13,13 +13,13 @@ from typing import Optional
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from mcp.server.mcpserver import MCPServer
+from mcp.types import ToolAnnotations
 from spider import (
     query_reports,
     QueryError,
     normalize_stock_code,
     download_reports,
     format_reports,
-    saving_path,
     supported_report_types,
 )
 
@@ -52,7 +52,14 @@ def _supported_report_types_text() -> str:
     return ", ".join(supported_report_types().keys())
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 def query_annual_reports_tool(
     stock_code: str, year: Optional[int] = None, report_type: str = "annual"
 ) -> dict:
@@ -131,7 +138,6 @@ def query_annual_reports_tool(
         }
 
 
-@mcp.tool()
 def download_annual_reports_tool(
     stock_code: str,
     year: Optional[int] = None,
@@ -144,7 +150,8 @@ def download_annual_reports_tool(
     Args:
         stock_code: Stock code (e.g., '000888' for 峨眉山, '688777' for 中科德芯)
         year: Optional year to filter (e.g., 2024). If not provided, downloads all available years
-        save_path: Optional directory to save files (e.g., '/Users/me/reports'). Defaults to pdf/ in package directory
+        save_path: Optional relative directory under CNINFO_MCP_DOWNLOAD_ROOT.
+            Defaults to the configured root. Absolute paths and traversal are rejected.
         report_type: Optional report type. Supported values: annual, semiannual, q1, q3, prospectus. Defaults to annual for backward compatibility.
 
     Returns:
@@ -162,7 +169,18 @@ def download_annual_reports_tool(
         - message: Status message
     """
     try:
-        output_dir = save_path or saving_path
+        root_value = os.environ.get("CNINFO_MCP_DOWNLOAD_ROOT")
+        if not root_value:
+            raise ValueError(
+                "Downloads are disabled. Set CNINFO_MCP_DOWNLOAD_ROOT to an explicit "
+                "allowed directory before starting the server."
+            )
+        root = os.path.realpath(os.path.expanduser(root_value))
+        if save_path and os.path.isabs(save_path):
+            raise ValueError("save_path must be relative to CNINFO_MCP_DOWNLOAD_ROOT")
+        output_dir = os.path.realpath(os.path.join(root, save_path or "."))
+        if os.path.commonpath([root, output_dir]) != root:
+            raise ValueError("save_path must remain inside CNINFO_MCP_DOWNLOAD_ROOT")
         stock_code = normalize_stock_code(stock_code)
 
         result = download_reports(
@@ -186,10 +204,21 @@ def download_annual_reports_tool(
             "failed": 0,
             "failures": [],
             "query_status": "error",
-            "path": save_path or saving_path,
+            "path": save_path,
             "error": str(e),
             "message": f"Error downloading reports: {str(e)}. Supported report_type values: {_supported_report_types_text()}",
         }
+
+
+if os.environ.get("CNINFO_MCP_DOWNLOAD_ROOT"):
+    mcp.tool(
+        annotations=ToolAnnotations(
+            readOnlyHint=False,
+            destructiveHint=True,
+            idempotentHint=False,
+            openWorldHint=True,
+        )
+    )(download_annual_reports_tool)
 
 
 @mcp.resource("annual-reports-list://{stock_code}")

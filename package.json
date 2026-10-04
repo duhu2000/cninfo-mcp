@@ -1,7 +1,8 @@
 {
-  "name": "@youhaozhao/cninfo-mcp",
-  "version": "1.4.1",
-  "description": "MCP Server for querying and downloading Chinese listed companies' periodic reports from CNINFO (巨潮资讯网)",
+  "name": "@duhu2000/cninfo-mcp",
+  "version": "1.4.2",
+  "mcpName": "io.github.duhu2000/cninfo-mcp",
+  "description": "DSH/QCC-maintained community MCP for querying Chinese listed companies' reports from CNINFO (巨潮资讯网)",
   "keywords": [
     "mcp",
     "mcp-server",
@@ -24,20 +25,20 @@
     "上市公司",
     "财报"
   ],
-  "homepage": "https://github.com/youhaozhao/cninfo-mcp#readme",
+  "homepage": "https://github.com/duhu2000/cninfo-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/youhaozhao/cninfo-mcp.git"
+    "url": "git+https://github.com/duhu2000/cninfo-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/youhaozhao/cninfo-mcp/issues"
+    "url": "https://github.com/duhu2000/cninfo-mcp/issues"
   },
   "license": "MIT",
   "bin": {
     "cninfo-mcp": "bin/cninfo-mcp.js"
   },
   "scripts": {
-    "postinstall": "node scripts/install-python-deps.js",
+    "setup-python": "node scripts/install-python-deps.js",
     "start": "node bin/cninfo-mcp.js",
     "dev": "node bin/cninfo-mcp.js",
     "test": "python3 -m pytest python -q && node --test scripts/test-launcher.js"
@@ -63,6 +64,7 @@
     "python/spider.py",
     "python/requirements.txt",
     "scripts/install-python-deps.js",
+    "server.json",
     "README.md",
     "LICENSE"
   ]
