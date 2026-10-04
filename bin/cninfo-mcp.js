@@ -4,7 +4,7 @@
  * 巨潮资讯 MCP 服务器启动器。
  *
  * 默认启动只探测已有 Python 环境，不创建目录、不安装依赖。需要安装时，
- * 用户必须显式运行 `npx @youhaozhao/cninfo-mcp --setup`。
+ * 用户必须显式运行 `npx @duhu2000/cninfo-mcp --setup`。
  */
 
 const { spawn } = require("child_process");
@@ -110,7 +110,7 @@ async function main() {
   if (!python) {
     throw new Error(
       "Python 3.10+ with cninfo-mcp dependencies was not found. "
-      + "Run `npx @youhaozhao/cninfo-mcp --setup` explicitly, "
+      + "Run `npx @duhu2000/cninfo-mcp --setup` explicitly, "
       + "or set CNINFO_MCP_PYTHON to a prepared Python executable.",
     );
   }

@@ -1,6 +1,10 @@
-# cninfo-mcp
+# DSH/QCC maintained cninfo-mcp
 
-[![npm version](https://img.shields.io/npm/v/@youhaozhao/cninfo-mcp)](https://www.npmjs.com/package/@youhaozhao/cninfo-mcp)
+[![npm version](https://img.shields.io/npm/v/@duhu2000/cninfo-mcp)](https://www.npmjs.com/package/@duhu2000/cninfo-mcp)
+
+本仓库是由 DSH/QCC 团队维护的安全加固社区分支，源自
+[`youhaozhao/cninfo-mcp`](https://github.com/youhaozhao/cninfo-mcp)。它不是深圳证券
+信息有限公司或巨潮资讯官方产品，也不暗示其背书。
 
 通过 MCP 协议查询和下载巨潮资讯网上市公司定期报告及招股书 PDF 的工具，适用于 Claude Desktop / Claude Code。
 
@@ -20,7 +24,7 @@
   "mcpServers": {
     "cninfo": {
       "command": "npx",
-      "args": ["-y", "@youhaozhao/cninfo-mcp"]
+      "args": ["-y", "@duhu2000/cninfo-mcp@1.4.2"]
     }
   }
 }
@@ -30,7 +34,7 @@
 `.cninfo-mcp/venv` 并访问 Python 包索引）：
 
 ```bash
-npx -y @youhaozhao/cninfo-mcp --setup
+npx -y @duhu2000/cninfo-mcp@1.4.2 --setup
 ```
 
 安装完成后重启 Claude Desktop 即可使用。普通 MCP 启动只复用已准备的

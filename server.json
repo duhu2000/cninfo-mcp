@@ -1,11 +1,11 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.youhaozhao/cninfo-mcp",
+  "name": "io.github.duhu2000/cninfo-mcp",
   "title": "CNINFO Listed Company Reports",
   "description": "Community MCP for querying Chinese listed-company reports and prospectuses from CNINFO.",
-  "websiteUrl": "https://github.com/youhaozhao/cninfo-mcp",
+  "websiteUrl": "https://github.com/duhu2000/cninfo-mcp",
   "repository": {
-    "url": "https://github.com/youhaozhao/cninfo-mcp",
+    "url": "https://github.com/duhu2000/cninfo-mcp",
     "source": "github"
   },
   "version": "1.4.2",
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@youhaozhao/cninfo-mcp",
+      "identifier": "@duhu2000/cninfo-mcp",
       "version": "1.4.2",
       "transport": {
         "type": "stdio"
