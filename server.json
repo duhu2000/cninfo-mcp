@@ -8,30 +8,17 @@
     "url": "https://github.com/duhu2000/cninfo-mcp",
     "source": "github"
   },
-  "version": "1.4.2",
+  "version": "1.4.3",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@duhu2000/cninfo-mcp",
-      "version": "1.4.2",
+      "version": "1.4.3",
       "transport": {
         "type": "stdio"
       },
-      "environmentVariables": [
-        {
-          "name": "CNINFO_MCP_PYTHON",
-          "description": "Optional path to a prepared Python 3.10+ executable with the declared runtime dependencies.",
-          "isRequired": false,
-          "isSecret": false
-        },
-        {
-          "name": "CNINFO_MCP_DOWNLOAD_ROOT",
-          "description": "Optional explicit root directory that enables the file-download tool. Omit for read-only operation.",
-          "isRequired": false,
-          "isSecret": false
-        }
-      ]
+      "environmentVariables": []
     }
   ]
 }

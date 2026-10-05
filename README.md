@@ -24,29 +24,19 @@
   "mcpServers": {
     "cninfo": {
       "command": "npx",
-      "args": ["-y", "@duhu2000/cninfo-mcp@1.4.2"]
+      "args": ["-y", "@duhu2000/cninfo-mcp@1.4.3"]
     }
   }
 }
 ```
 
-首次使用前需显式准备 Python 依赖（安装过程会在用户目录创建
-`.cninfo-mcp/venv` 并访问 Python 包索引）：
-
-```bash
-npx -y @duhu2000/cninfo-mcp@1.4.2 --setup
-```
-
-安装完成后重启 Claude Desktop 即可使用。普通 MCP 启动只复用已准备的
-Python 环境，不会创建虚拟环境或执行 `pip install`。也可通过
-`CNINFO_MCP_PYTHON` 指向已安装 `python/requirements.txt` 依赖的 Python 3.10+
-解释器。
+`1.4.3` 起服务为纯 Node 实现；`npx` 安装完成后即可启动，不需要 Python、
+虚拟环境、`pip install` 或额外的初始化命令。
 
 ## 可用工具
 
 - **`query_annual_reports_tool`** — 查询报告列表，参数：股票代码（必填）、年份（可选）、报告类型（可选，默认 `annual`）
-- **`download_annual_reports_tool`** — 下载报告 PDF；默认不注册。仅在启动前显式设置
-  `CNINFO_MCP_DOWNLOAD_ROOT` 后启用，`save_path` 只能是该目录内的相对路径。
+本安全分支只注册只读查询工具，不提供本地文件下载工具。
 
 支持的 `report_type`：
 
@@ -62,16 +52,13 @@ Python 环境，不会创建虚拟环境或执行 `pip install`。也可通过
 查询 000888 的 2024 年报
 查询 000001 的 2024 半年报
 查询 600519 的 2024 一季报
-下载 300750 的 2023 三季报
-下载 688777 的年报
 查询 920185 的年报      # 北交所，新旧代码（如 835185）均可
 查询 688777 的招股书
 ```
 
 ## 系统要求
 
-- Node.js 18+
-- Python 3.10+（依赖只在用户显式执行 `--setup` 时安装；需要 MCP Python SDK v2）
+- Node.js 20+
 
 ## 安全边界
 
@@ -79,8 +66,7 @@ Python 环境，不会创建虚拟环境或执行 `pip install`。也可通过
   `https://static.cninfo.com.cn`。
 - 默认仅暴露只读查询工具，并声明 MCP `readOnlyHint`、`destructiveHint`、
   `idempotentHint` 与 `openWorldHint`。
-- 下载能力必须通过 `CNINFO_MCP_DOWNLOAD_ROOT` 显式启用；工具拒绝绝对路径与
-  `..` 越界路径，并声明为可能覆盖同名文件的非只读工具。
+- 不注册文件下载工具，不创建用户目录，也不会启动 Python 或执行 `pip install`。
 - 本项目是独立社区项目，并非深圳证券信息有限公司或巨潮资讯官方产品；使用时
   仍应遵守巨潮资讯网站规则与数据使用边界。
 
@@ -103,18 +89,9 @@ Python 环境，不会创建虚拟环境或执行 `pip install`。也可通过
 
 ## 开发测试
 
-在独立环境中安装运行依赖和 pytest 后执行全部 Python 与 Node 回归测试：
+安装 Node 依赖后执行回归测试：
 
 ```bash
-python3 -m venv .venv
-# Windows: .venv\Scripts\activate
-source .venv/bin/activate
-python -m pip install -r python/requirements.txt pytest
+npm ci
 npm test
-```
-
-也可使用 uv 临时环境：
-
-```bash
-uv run --no-project --with pytest --with requests --with 'mcp~=2.1.1' npm test
 ```
