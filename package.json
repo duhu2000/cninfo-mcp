@@ -1,6 +1,6 @@
 {
   "name": "@duhu2000/cninfo-mcp",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "mcpName": "io.github.duhu2000/cninfo-mcp",
   "description": "DSH/QCC-maintained community MCP for querying Chinese listed companies' reports from CNINFO (巨潮资讯网)",
   "keywords": [
@@ -13,7 +13,7 @@
     "semiannual-reports",
     "periodic-reports",
     "finance",
-    "python",
+    "nodejs",
     "巨潮",
     "巨潮资讯",
     "定期报告",
@@ -35,22 +35,22 @@
   },
   "license": "MIT",
   "bin": {
-    "cninfo-mcp": "bin/cninfo-mcp.js"
+    "cninfo-mcp": "bin/cninfo-mcp.mjs"
   },
   "scripts": {
-    "setup-python": "node scripts/install-python-deps.js",
-    "start": "node bin/cninfo-mcp.js",
-    "dev": "node bin/cninfo-mcp.js",
-    "test": "python3 -m pytest python -q && node --test scripts/test-launcher.js"
+    "start": "node bin/cninfo-mcp.mjs",
+    "dev": "node bin/cninfo-mcp.mjs",
+    "test": "node --test scripts/test-node-server.mjs"
   },
   "dependencies": {
-    "spawn-please": "^2.0.2"
+    "@modelcontextprotocol/server": "2.3.0",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/node": "^20.11.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "os": [
     "darwin",
@@ -58,12 +58,8 @@
     "win32"
   ],
   "files": [
-    "bin/",
-    "python/mcp_server.py",
-    "python/check_deps.py",
-    "python/spider.py",
-    "python/requirements.txt",
-    "scripts/install-python-deps.js",
+    "bin/cninfo-mcp.mjs",
+    "lib/",
     "server.json",
     "README.md",
     "LICENSE"
